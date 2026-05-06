@@ -11,3 +11,4 @@
 ## 檔案資訊
 - Server/DeviceInfoHub.exe為最新執行檔備份，若有更新原始碼，請一併建置更新
 - 建置：安裝Go開發環境後在Server資料夾cmd -> go build . 即可建置
+
