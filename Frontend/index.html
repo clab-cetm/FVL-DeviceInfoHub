@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Device Data Console</title>
+<link rel="stylesheet" href="css/style.css" />
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.163.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.163.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+  <canvas id="three-canvas"></canvas>
+
+  <div id="top-bar">
+    <button id="add-requester">Add Requester</button>
+    <button id="set-env-model">Set Environment Model</button>
+    <input type="file" id="env-model-file" accept=".fbx" hidden />
+  </div>
+
+  <div id="model-controls">
+    <div class="panel-title">Environment Model</div>
+    <div class="row">
+      <label>Offset</label>
+      <input id="offset-x" type="number" step="0.1" value="0" placeholder="X" />
+      <input id="offset-y" type="number" step="0.1" value="0" placeholder="Y" />
+      <input id="offset-z" type="number" step="0.1" value="0" placeholder="Z" />
+    </div>
+    <div class="row">
+      <label>Rot Y (deg)</label>
+      <input id="rotation-y" type="number" step="1" value="0" />
+    </div>
+    <div class="row">
+      <button id="apply-transform">Apply</button>
+    </div>
+  </div>
+
+  <div id="device-data-panels"></div>
+
+  <div id="requester-panels"></div>
+
+  <div id="requester-dialog">
+    <div class="dialog-box">
+      <h3>Add Requester</h3>
+      <div class="row">
+        <label>database_name</label>
+        <input id="dialog-database" type="text" placeholder="e.g. transform" />
+      </div>
+      <div class="row">
+        <label>request_period (s)</label>
+        <input id="dialog-period" type="number" min="0.1" step="0.1" value="1" />
+      </div>
+      <div class="actions">
+        <button id="dialog-cancel">Cancel</button>
+        <button id="dialog-ok">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
