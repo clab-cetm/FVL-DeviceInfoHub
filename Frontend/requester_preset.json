@@ -1,0 +1,5 @@
+[
+  { "databaseName": "transform", "periodSec": 0.3 },
+  { "databaseName": "anchor",    "periodSec": 1.0 },
+  { "databaseName": "cam",    "periodSec": 1.0 }
+]

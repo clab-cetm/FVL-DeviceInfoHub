@@ -15,6 +15,41 @@ const requesterPanels = new RequesterPanels(
   store
 );
 
+loadRequesterPresets(requesterPanels);
+
+async function loadRequesterPresets(panels) {
+  let res;
+  try {
+    res = await fetch('/requester_preset.json');
+  } catch (err) {
+    console.warn('[requester_preset] fetch failed:', err);
+    return;
+  }
+  if (!res.ok) {
+    console.warn(`[requester_preset] not loaded (HTTP ${res.status})`);
+    return;
+  }
+  let presets;
+  try {
+    presets = await res.json();
+  } catch (err) {
+    console.warn('[requester_preset] invalid JSON:', err);
+    return;
+  }
+  if (!Array.isArray(presets)) {
+    console.warn('[requester_preset] expected an array, got:', presets);
+    return;
+  }
+  for (const entry of presets) {
+    const period = Number(entry?.periodSec);
+    if (typeof entry?.databaseName !== 'string' || !entry.databaseName || !(period > 0)) {
+      console.warn('[requester_preset] skipping invalid entry:', entry);
+      continue;
+    }
+    panels.add(entry.databaseName, period);
+  }
+}
+
 // Spec-required global function: GetDeviceData(DeviceName, DataCategory, DataName)
 window.GetDeviceData = (deviceName, dataCategory, dataName) =>
   store.getDeviceData(deviceName, dataCategory, dataName);

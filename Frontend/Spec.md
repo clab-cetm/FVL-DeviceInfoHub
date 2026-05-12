@@ -21,6 +21,19 @@ The console page contains following elements and functions:
 - Press "OK" , create corresponding Request Panel and start request.
 - GET http://localhost:8080/{database_name}/all every {request_period} seconds
 
+### Requester Preset
+- On page load, the console fetches `/requester_preset.json` (file lives next to `index.html`) and auto-creates a requester for each entry, using the same code path as the "Add Requester" dialog.
+- File format is a JSON array. Each entry has `databaseName` (string) and `periodSec` (positive number):
+
+[
+  { "databaseName": "transform", "periodSec": 0.3 },
+  { "databaseName": "anchor",    "periodSec": 1.0 }
+]
+
+- An empty array `[]` disables auto-load without deleting the file.
+- If the file is missing, not valid JSON, or not an array, the page loads with zero auto-requesters and logs a warning to the browser console. Invalid individual entries are skipped (warned), valid ones still load.
+- Auto-loaded requesters are normal requesters — they show the same Requester Panel and can be removed with the "X" button.
+
 ### Requester Panel
 - Request panel shows latest received respond of corresponding Device Data Requester.
 - The requester panel area at the bottom of console page , has full width of console page.
