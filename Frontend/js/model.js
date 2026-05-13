@@ -7,18 +7,27 @@ export class EnvironmentModel {
     this.model = null;
     this.offset = new THREE.Vector3(0, 0, 0);
     this.rotationYDeg = 0;
+    this.scale = 1;
   }
 
   async loadFromFile(file) {
     const buffer = await file.arrayBuffer();
     const loader = new FBXLoader();
     const model = loader.parse(buffer, '');
+    this._setModel(model);
+  }
 
+  async loadFromURL(url) {
+    const loader = new FBXLoader();
+    const model = await loader.loadAsync(url);
+    this._setModel(model);
+  }
+
+  _setModel(model) {
     if (this.model) {
       this.scene.remove(this.model);
       this.disposeObject(this.model);
     }
-
     this.model = model;
     this.applyTransform();
     this.scene.add(model);
@@ -34,10 +43,18 @@ export class EnvironmentModel {
     this.applyTransform();
   }
 
+  setScale(s) {
+    if (s > 0) {
+      this.scale = s;
+      this.applyTransform();
+    }
+  }
+
   applyTransform() {
     if (!this.model) return;
     this.model.position.copy(this.offset);
     this.model.rotation.set(0, THREE.MathUtils.degToRad(this.rotationYDeg), 0);
+    this.model.scale.setScalar(this.scale);
   }
 
   disposeObject(obj) {

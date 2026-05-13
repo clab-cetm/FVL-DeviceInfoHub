@@ -21,17 +21,26 @@ The console page contains following elements and functions:
 - Press "OK" , create corresponding Request Panel and start request.
 - GET http://localhost:8080/{database_name}/all every {request_period} seconds
 
-### Requester Preset
-- On page load, the console fetches `/requester_preset.json` (file lives next to `index.html`) and auto-creates a requester for each entry, using the same code path as the "Add Requester" dialog.
-- File format is a JSON array. Each entry has `databaseName` (string) and `periodSec` (positive number):
+### Console Preset
+- On page load, the console fetches `/preset.json` (file lives next to `index.html`) and applies it. The preset has two top-level sections: `environmentModel` and `requesters`.
+- `environmentModel` (optional object) — applied via the same code paths as the Environment Model panel; values are also reflected back into the panel's input fields. `fbxPath` is resolved relative to `index.html`.
 
-[
-  { "databaseName": "transform", "periodSec": 0.3 },
-  { "databaseName": "anchor",    "periodSec": 1.0 }
-]
+{
+  "environmentModel": {
+    "fbxPath": "backto_room.fbx",
+    "offset": { "x": 0, "y": 0, "z": 0 },
+    "rotationYDeg": 0,
+    "scale": 1,
+    "grid": { "cellSize": 1, "cellCount": 100 }
+  },
+  "requesters": [
+    { "databaseName": "transform", "periodSec": 0.3 },
+    { "databaseName": "anchor",    "periodSec": 1.0 }
+  ]
+}
 
-- An empty array `[]` disables auto-load without deleting the file.
-- If the file is missing, not valid JSON, or not an array, the page loads with zero auto-requesters and logs a warning to the browser console. Invalid individual entries are skipped (warned), valid ones still load.
+- `requesters` (optional array) — each entry has `databaseName` (string) and `periodSec` (positive number); each is created via the same code path as the "Add Requester" dialog. An empty array disables auto-load without deleting the file.
+- If `preset.json` is missing, not valid JSON, or the FBX at `fbxPath` cannot be loaded, the page falls back to defaults and logs a warning. Invalid individual requester entries are skipped (warned); valid ones still load.
 - Auto-loaded requesters are normal requesters — they show the same Requester Panel and can be removed with the "X" button.
 
 ### Requester Panel

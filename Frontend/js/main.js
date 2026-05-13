@@ -15,38 +15,78 @@ const requesterPanels = new RequesterPanels(
   store
 );
 
-loadRequesterPresets(requesterPanels);
+loadPresets();
 
-async function loadRequesterPresets(panels) {
+async function loadPresets() {
   let res;
   try {
-    res = await fetch('/requester_preset.json');
+    res = await fetch('/preset.json');
   } catch (err) {
-    console.warn('[requester_preset] fetch failed:', err);
+    console.warn('[preset] fetch failed:', err);
     return;
   }
   if (!res.ok) {
-    console.warn(`[requester_preset] not loaded (HTTP ${res.status})`);
+    console.warn(`[preset] not loaded (HTTP ${res.status})`);
     return;
   }
-  let presets;
+  let preset;
   try {
-    presets = await res.json();
+    preset = await res.json();
   } catch (err) {
-    console.warn('[requester_preset] invalid JSON:', err);
+    console.warn('[preset] invalid JSON:', err);
     return;
   }
-  if (!Array.isArray(presets)) {
-    console.warn('[requester_preset] expected an array, got:', presets);
+  applyEnvironmentModelPreset(preset?.environmentModel);
+  applyRequesterPresets(preset?.requesters);
+}
+
+async function applyEnvironmentModelPreset(cfg) {
+  if (!cfg || typeof cfg !== 'object') return;
+
+  const offset = cfg.offset ?? {};
+  const x = Number(offset.x) || 0;
+  const y = Number(offset.y) || 0;
+  const z = Number(offset.z) || 0;
+  const ry = Number(cfg.rotationYDeg) || 0;
+  const scale = Number(cfg.scale);
+  const grid = cfg.grid ?? {};
+  const cellSize = Number(grid.cellSize);
+  const cellCount = parseInt(grid.cellCount, 10);
+
+  document.getElementById('offset-x').value = x;
+  document.getElementById('offset-y').value = y;
+  document.getElementById('offset-z').value = z;
+  document.getElementById('rotation-y').value = ry;
+  if (scale > 0) document.getElementById('model-scale').value = scale;
+  if (cellSize > 0) document.getElementById('grid-cell-size').value = cellSize;
+  if (cellCount > 0) document.getElementById('grid-cell-count').value = cellCount;
+
+  envModel.setOffset(x, y, z);
+  envModel.setRotationY(ry);
+  if (scale > 0) envModel.setScale(scale);
+  if (cellSize > 0 && cellCount > 0) sceneMgr.setGrid(cellSize, cellCount);
+
+  if (typeof cfg.fbxPath === 'string' && cfg.fbxPath) {
+    try {
+      await envModel.loadFromURL(cfg.fbxPath);
+    } catch (err) {
+      console.warn(`[preset] failed to load FBX "${cfg.fbxPath}":`, err);
+    }
+  }
+}
+
+function applyRequesterPresets(list) {
+  if (!Array.isArray(list)) {
+    if (list !== undefined) console.warn('[preset] requesters: expected an array, got:', list);
     return;
   }
-  for (const entry of presets) {
+  for (const entry of list) {
     const period = Number(entry?.periodSec);
     if (typeof entry?.databaseName !== 'string' || !entry.databaseName || !(period > 0)) {
-      console.warn('[requester_preset] skipping invalid entry:', entry);
+      console.warn('[preset] skipping invalid requester entry:', entry);
       continue;
     }
-    panels.add(entry.databaseName, period);
+    requesterPanels.add(entry.databaseName, period);
   }
 }
 
@@ -57,7 +97,6 @@ window.deviceDataStore = store;
 
 // --- Set Environment Model ---
 const envFileInput = document.getElementById('env-model-file');
-const modelControls = document.getElementById('model-controls');
 
 document.getElementById('set-env-model').addEventListener('click', () => {
   envFileInput.click();
@@ -68,7 +107,6 @@ envFileInput.addEventListener('change', async (e) => {
   if (!file) return;
   try {
     await envModel.loadFromFile(file);
-    modelControls.classList.add('visible');
   } catch (err) {
     alert('Failed to load FBX: ' + err.message);
   } finally {
@@ -81,8 +119,13 @@ document.getElementById('apply-transform').addEventListener('click', () => {
   const y = parseFloat(document.getElementById('offset-y').value) || 0;
   const z = parseFloat(document.getElementById('offset-z').value) || 0;
   const ry = parseFloat(document.getElementById('rotation-y').value) || 0;
+  const scale = parseFloat(document.getElementById('model-scale').value);
+  const cellSize = parseFloat(document.getElementById('grid-cell-size').value);
+  const cellCount = parseInt(document.getElementById('grid-cell-count').value, 10);
   envModel.setOffset(x, y, z);
   envModel.setRotationY(ry);
+  if (scale > 0) envModel.setScale(scale);
+  if (cellSize > 0 && cellCount > 0) sceneMgr.setGrid(cellSize, cellCount);
 });
 
 // --- Add Requester dialog ---

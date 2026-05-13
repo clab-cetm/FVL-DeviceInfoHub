@@ -1,0 +1,17 @@
+{
+  "environmentModel": {
+    "fbxPath": "backto_room.fbx",
+    "offset": { "x": 0, "y": 0, "z": 0 },
+    "rotationYDeg": 0,
+    "scale": 1,
+    "grid": {
+      "cellSize": 1,
+      "cellCount": 100
+    }
+  },
+  "requesters": [
+    { "databaseName": "transform", "periodSec": 0.3 },
+    { "databaseName": "anchor",    "periodSec": 1.0 },
+    { "databaseName": "cam",       "periodSec": 1.0 }
+  ]
+}

@@ -24,8 +24,11 @@ export class SceneManager {
     this.controls.dampingFactor = 0.08;
     this.controls.target.set(0, 0, 0);
 
-    const grid = new THREE.GridHelper(200, 200, 0x666666, 0x333333);
-    this.scene.add(grid);
+    this.gridCellSize = 1;
+    this.gridCellCount = 100;
+    this.gridColors = [0x666666, 0x333333];
+    this.grid = null;
+    this.rebuildGrid();
 
     const axes = new THREE.AxesHelper(5);
     this.scene.add(axes);
@@ -41,6 +44,25 @@ export class SceneManager {
 
     this.animate = this.animate.bind(this);
     this.animate();
+  }
+
+  rebuildGrid() {
+    if (this.grid) {
+      this.scene.remove(this.grid);
+      this.grid.geometry?.dispose();
+      const mats = Array.isArray(this.grid.material) ? this.grid.material : [this.grid.material];
+      for (const m of mats) m?.dispose?.();
+    }
+    const divisions = this.gridCellCount * 2;
+    const size = this.gridCellSize * divisions;
+    this.grid = new THREE.GridHelper(size, divisions, this.gridColors[0], this.gridColors[1]);
+    this.scene.add(this.grid);
+  }
+
+  setGrid(cellSize, cellCount) {
+    if (cellSize > 0) this.gridCellSize = cellSize;
+    if (cellCount > 0) this.gridCellCount = Math.floor(cellCount);
+    this.rebuildGrid();
   }
 
   onResize() {
